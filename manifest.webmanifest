@@ -1,0 +1,25 @@
+{
+  "name": "Autumn Master Notebook",
+  "short_name": "Master Notebook",
+  "description": "An autumnal personal notebook with custom notebooks, annotations, sticky notes, highlighters, PDF reading, focus timer, word counts and atmosphere.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#201713",
+  "theme_color": "#2b211d",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
