@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Autumn Master Notebook</title>
+<style>
+:root{
+  --bg:#201713;
+  --panel:#2b211d;
+  --panel2:#332821;
+  --paper:#f2e4c8;
+  --ink:#3a2a24;
+  --muted:#bfae9b;
+  --accent:#a65d3b;
+  --accent2:#d19455;
+  --leaf:#65704a;
+  --gold:#c9a86a;
+  --line:#decba4;
+  --shadow: 0 18px 45px rgba(0,0,0,.28);
+  --radius:22px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Georgia, "Times New Roman", serif;background:
+radial-gradient(circle at 15% 0%, rgba(140,75,44,.22), transparent 35%),
+radial-gradient(circle at 90% 20%, rgba(94,105,65,.18), transparent 30%),
+linear-gradient(145deg,#17110e,#261a15 55%,#1d1713);
+color:#f6efe4}
+
+body{min-height:100vh;overflow:hidden}
+
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+
+.app{
+  height:100vh;
+  display:grid;
+  grid-template-columns:280px 1fr 320px;
+  gap:14px;
+  padding:14px;
+}
+
+.panel{
+  background:linear-gradient(180deg,rgba(49,36,31,.96),rgba(34,26,22,.96));
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:var(--shadow);
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+
+.sidebar{
+  display:flex;flex-direction:column;min-width:0;
+}
+
+.brand{
+  padding:22px 20px 14px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.brand h1{margin:0;font-size:25px;letter-spacing:.4px}
+.brand p{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.4}
+
+.sidebar-actions{
+  display:flex;gap:8px;padding:14px 14px 8px;
+}
+.btn{
+  border:0;border-radius:13px;padding:10px 12px;background:#46342c;color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+}
+.btn:hover{filter:brightness(1.08)}
+.btn.primary{background:linear-gradient(135deg,#9b5438,#c47c4b)}
+.btn.icon{width:42px;padding:10px 0}
+.btn.soft{background:#3b2d27;color:#eadfd4}
+.btn.small{padding:7px 9px;border-radius:10px;font-size:12px}
+
+.notebook-list{
+  padding:6px 10px 18px;
+  overflow:auto;flex:1;
+}
+.notebook-card{
+  display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;
+  padding:10px;margin:7px 0;border-radius:14px;background:transparent;
+  transition:.18s;cursor:pointer;border:1px solid transparent;
+}
+.notebook-card:hover{background:#352923}
+.notebook-card.active{background:#3d2e27;border-color:rgba(255,255,255,.08)}
+.cover-mini{
+  width:42px;height:54px;border-radius:6px 9px 9px 6px;
+  box-shadow:4px 4px 0 rgba(0,0,0,.18), inset 3px 0 rgba(255,255,255,.15);
+  position:relative;overflow:hidden;
+}
+.cover-mini:after{content:"";position:absolute;left:7px;top:0;bottom:0;width:2px;background:rgba(255,255,255,.2)}
+.nb-title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nb-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.dot{width:7px;height:7px;border-radius:50%;background:#8ca06a}
+
+.sidebar-footer{
+  padding:12px 14px 16px;border-top:1px solid rgba(255,255,255,.07);color:var(--muted);font-size:12px;
+}
+
+.workspace{
+  position:relative;display:flex;flex-direction:column;min-width:0;
+  background:linear-gradient(180deg,#e6d3ae,#f5ebd5);
+  color:var(--ink);
+}
+
+.toolbar{
+  min-height:64px;padding:10px 14px;background:rgba(255,248,231,.76);
+  border-bottom:1px solid rgba(90,63,45,.15);
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  backdrop-filter:blur(8px);
+}
+.toolbar .spacer{flex:1}
+.toolbar select,.toolbar input[type="color"],.toolbar input[type="number"]{
+  border:1px solid #ccb98f;background:#fffaf0;color:#4a3528;border-radius:10px;padding:8px;
+}
+.tool-btn{
+  border:1px solid #cdbb94;background:#fff7e7;color:#4b342a;border-radius:10px;padding:8px 10px;
+}
+.tool-btn.active{background:#d9b77f}
+.tool-btn:hover{background:#efe0bf}
+
+.page-title{
+  border:0;background:transparent;font-size:18px;font-weight:bold;min-width:160px;color:#4a3528;padding:7px 8px;
+}
+.page-title:focus{outline:1px dashed #b79e73;border-radius:8px}
+
+.paper-wrap{
+  flex:1;overflow:auto;padding:24px;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.6),transparent 35%),
+    repeating-linear-gradient(0deg,transparent 0 31px,rgba(129,100,64,.075) 31px 32px),
+    linear-gradient(180deg,#efe2c6,#f8edd8);
+}
+
+.paper{
+  position:relative;
+  max-width:920px;
+  min-height:calc(100vh - 145px);
+  margin:0 auto;
+  background:rgba(255,250,237,.9);
+  border-radius:3px;
+  box-shadow:0 12px 35px rgba(89,56,32,.15);
+  padding:58px 64px 80px;
+  border-left:1px solid rgba(100,70,40,.08);
+}
+
+.paper:before{
+  content:"";
+  position:absolute;left:38px;top:0;bottom:0;width:1px;background:rgba(162,80,58,.22);
+}
+
+.editor{
+  min-height:560px;outline:none;font-family:Georgia,serif;font-size:18px;line-height:1.72;
+  color:var(--ink);white-space:pre-wrap;
+}
+.editor:empty:before{
+  content:"Begin writing…";
+  color:#a89580;
+}
+
+.sticky-layer{position:absolute;inset:0;pointer-events:none}
+.sticky{
+  width:180px;min-height:150px;position:absolute;padding:20px 15px 14px;
+  box-shadow:0 10px 23px rgba(0,0,0,.18);
+  transform:rotate(-1.5deg);
+  pointer-events:auto;
+  border-radius:3px;
+}
+.sticky textarea{
+  width:100%;height:105px;border:0;background:transparent;resize:none;outline:none;color:#493b2c;font-size:14px;line-height:1.4;
+}
+.sticky .drag{
+  position:absolute;left:0;right:0;top:0;height:18px;cursor:move;
+}
+.sticky .close{
+  position:absolute;right:5px;top:3px;border:0;background:transparent;color:#624d3a;font-size:16px;
+}
+
+.rightbar{display:flex;flex-direction:column;min-width:0;overflow:auto}
+.section{padding:16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.section h3{margin:0 0 12px;font-size:15px;letter-spacing:.3px}
+.section p{color:var(--muted);font-size:12px;margin:6px 0 0}
+
+.timer{
+  background:linear-gradient(145deg,#3a2a24,#241a16);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:18px;padding:16px;text-align:center;
+}
+.timer-display{
+  font-size:46px;letter-spacing:2px;font-variant-numeric:tabular-nums;margin:6px 0 12px;
+}
+.timer-controls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.quick-times{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+
+.atmos-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.atmos-btn{
+  min-height:74px;border:1px solid rgba(255,255,255,.06);border-radius:14px;background:#3a2c26;color:#f5ebdf;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+}
+.atmos-btn.active{outline:2px solid var(--gold);background:#48362d}
+.atmos-icon{font-size:24px}
+.volume{width:100%;margin-top:12px}
+
+.custom-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.custom-grid label{font-size:11px;color:var(--muted)}
+.custom-grid input,.custom-grid select{
+  width:100%;margin-top:4px;background:#382a24;color:#fff;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px;
+}
+
+.cover-preview{
+  height:135px;border-radius:9px 14px 14px 9px;margin-top:12px;
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;
+  box-shadow:8px 8px 0 rgba(0,0,0,.17), inset 7px 0 rgba(255,255,255,.13);
+  font-size:18px;font-weight:bold;position:relative;overflow:hidden;
+}
+.cover-preview:after{content:"";position:absolute;left:17px;top:0;bottom:0;width:2px;background:rgba(255,255,255,.25)}
+
+.floating-leaves{
+  pointer-events:none;position:fixed;inset:0;overflow:hidden;z-index:50;display:none;
+}
+.leaf{
+  position:absolute;top:-40px;animation:fall linear forwards;opacity:.8;
+}
+@keyframes fall{
+  to{transform:translate(var(--drift),110vh) rotate(720deg);opacity:.1}
+}
+
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+  background:#2c211d;color:#fff;padding:10px 14px;border-radius:999px;opacity:0;transition:.25s;z-index:100;
+  box-shadow:var(--shadow);font-size:13px;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.52);display:none;align-items:center;justify-content:center;z-index:80;padding:20px;
+}
+.modal.show{display:flex}
+.modal-card{
+  width:min(520px,100%);background:#f7ead0;color:#392920;border-radius:22px;padding:22px;box-shadow:var(--shadow)
+}
+.modal-card h2{margin-top:0}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row input,.form-row select{
+  width:100%;padding:10px;border:1px solid #c7ad82;border-radius:10px;background:#fff9ec;color:#3c2d24;
+}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+
+
+.word-stats{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+}
+.stat-pill{
+  padding:7px 10px;border-radius:999px;background:#ead8b6;
+  border:1px solid #cdb98f;color:#4a3528;font-size:12px;
+  white-space:nowrap;
+}
+.pdf-desk{
+  display:none;flex:1;min-height:0;background:#211914;
+}
+.pdf-desk.open{display:flex}
+.pdf-reader-pane{
+  flex:1;min-width:0;display:flex;flex-direction:column;background:#211914;
+}
+.pdf-reader-bar{
+  padding:9px 12px;background:#31251f;color:#f6efe4;
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.pdf-reader-bar .pdf-name{
+  flex:1;min-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:#dfcdbb;font-size:13px;
+}
+.pdf-frame{
+  flex:1;width:100%;border:0;background:#4b443e;min-height:520px;
+}
+.pdf-empty{
+  flex:1;display:flex;align-items:center;justify-content:center;text-align:center;
+  padding:35px;color:#cbb9a8;background:
+  radial-gradient(circle at 50% 35%,rgba(151,90,54,.15),transparent 35%),
+  #211914;
+}
+.pdf-empty strong{display:block;color:#f3e4d2;font-size:20px;margin-bottom:8px}
+.workspace.split-reading .paper-wrap{display:none}
+.workspace.split-reading .pdf-desk{display:flex}
+
+@media(max-width:1050px){
+  .app{grid-template-columns:230px 1fr}
+  .rightbar{
+    position:fixed;right:14px;top:14px;bottom:14px;width:min(330px,calc(100vw - 28px));
+    z-index:70;transform:translateX(calc(100% + 30px));transition:.25s
+  }
+  .rightbar.open{transform:translateX(0)}
+  .mobile-panel-btn{display:inline-block!important}
+}
+@media(max-width:720px){
+  body{overflow:auto}
+  .app{display:block;height:auto;padding:8px}
+  .sidebar{height:auto;margin-bottom:8px}
+  .notebook-list{max-height:220px}
+  .workspace{min-height:75vh}
+  .paper-wrap{padding:10px}
+  .paper{padding:48px 28px 70px;min-height:70vh}
+  .paper:before{left:20px}
+  .toolbar{position:sticky;top:0;z-index:30}
+  .rightbar{top:8px;bottom:8px;right:8px}
+  .pdf-frame{min-height:70vh}
+  .word-stats{width:100%;order:5}
+}
+.mobile-panel-btn{display:none}
+
+mark{border-radius:4px;padding:1px 2px}
+.annotation{
+  border-bottom:2px dotted #a8563a;cursor:help;
+}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2b211d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+</head>
+<body>
+
+<div class="app">
+  <aside class="panel sidebar">
+    <div class="brand">
+      <h1>🍂 Master Notebook</h1>
+      <p>Your private autumn study cabinet — notes, journals, ideas, annotations and focus rituals.</p>
+    </div>
+    <div class="sidebar-actions">
+      <button class="btn primary" id="newNotebook">＋ Notebook</button>
+      <button class="btn icon" id="exportBtn" title="Export data">⇩</button>
+      <button class="btn icon" id="importBtn" title="Import data">⇧</button>
+      <input id="importFile" type="file" accept=".json" hidden>
+    </div>
+    <div class="notebook-list" id="notebookList"></div>
+    <div class="sidebar-footer">Saved automatically on this device ✦</div>
+  </aside>
+
+  <main class="panel workspace">
+    <div class="toolbar">
+      <input id="pageTitle" class="page-title" value="Untitled Page">
+      <button class="tool-btn" data-cmd="bold"><b>B</b></button>
+      <button class="tool-btn" data-cmd="italic"><i>I</i></button>
+      <button class="tool-btn" data-cmd="underline"><u>U</u></button>
+      <button class="tool-btn" id="highlightBtn">🖍 Highlight</button>
+      <input type="color" id="highlightColor" value="#f2cf7e" title="Highlighter colour">
+      <button class="tool-btn" id="annotateBtn">✎ Annotate</button>
+      <button class="tool-btn" id="stickyBtn">🗒 Sticky</button>
+      <button class="tool-btn" id="clearFormatBtn">Clear style</button>
+      <div class="word-stats">
+        <span class="stat-pill" id="pageWordCount">0 words</span>
+        <span class="stat-pill" id="notebookWordCount">0 in notebook</span>
+      </div>
+      <button class="tool-btn" id="pdfToggleBtn">📖 PDF Reader</button>
+      <div class="spacer"></div>
+      <button class="tool-btn mobile-panel-btn" id="openPanel">☕ Atmosphere</button>
+      <button class="tool-btn" id="newPageBtn">＋ Page</button>
+      <select id="pageSelect"></select>
+      <button class="tool-btn" id="deletePageBtn">🗑</button>
+    </div>
+
+    <div class="paper-wrap" id="paperWrap">
+      <section class="paper" id="paper">
+        <div id="editor" class="editor" contenteditable="true"></div>
+        <div class="sticky-layer" id="stickyLayer"></div>
+      </section>
+    </div>
+
+    <div class="pdf-desk" id="pdfDesk">
+      <div class="pdf-reader-pane">
+        <div class="pdf-reader-bar">
+          <button class="btn small primary" id="openPdfBtn">＋ Open PDF</button>
+          <input type="file" id="pdfFileInput" accept="application/pdf,.pdf" hidden>
+          <span class="pdf-name" id="pdfName">No PDF open</span>
+          <button class="btn small soft" id="closePdfBtn">Back to notes</button>
+        </div>
+        <div class="pdf-empty" id="pdfEmpty">
+          <div><strong>📜 Your reading desk is empty.</strong>
+          Open a PDF from your tablet and it will appear here.</div>
+        </div>
+        <iframe class="pdf-frame" id="pdfFrame" title="PDF Reader" style="display:none"></iframe>
+      </div>
+    </div>
+  </main>
+
+  <aside class="panel rightbar" id="rightbar">
+    <div class="section" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <h3 style="margin-bottom:3px">Autumn Desk</h3>
+        <p style="margin:0">Settle in. The kettle is metaphorically on.</p>
+      </div>
+      <button class="btn small mobile-panel-btn" id="closePanel">✕</button>
+    </div>
+
+    <div class="section">
+      <h3>⏳ Focus Timer</h3>
+      <div class="timer">
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        <div class="timer-controls">
+          <button class="btn small primary" id="timerStart">Start</button>
+          <button class="btn small soft" id="timerPause">Pause</button>
+          <button class="btn small soft" id="timerReset">Reset</button>
+        </div>
+        <div class="quick-times">
+          <button class="btn small soft quickTime" data-min="15">15m</button>
+          <button class="btn small soft quickTime" data-min="25">25m</button>
+          <button class="btn small soft quickTime" data-min="30">30m</button>
+          <button class="btn small soft quickTime" data-min="45">45m</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>☕ Atmosphere</h3>
+      <div class="atmos-grid">
+        <button class="atmos-btn" data-sound="rain"><span class="atmos-icon">🌧️</span>Rain</button>
+        <button class="atmos-btn" data-sound="fire"><span class="atmos-icon">🔥</span>Fireplace</button>
+        <button class="atmos-btn" data-sound="library"><span class="atmos-icon">📚</span>Library</button>
+        <button class="atmos-btn" id="leavesToggle"><span class="atmos-icon">🍁</span>Falling leaves</button>
+      </div>
+      <input class="volume" id="volume" type="range" min="0" max="1" step=".05" value=".45">
+      <p>Ambient sounds are generated softly in-browser — no external files needed.</p>
+    </div>
+
+    <div class="section">
+      <h3>📕 Notebook Customisation</h3>
+      <div class="custom-grid">
+        <label>Cover
+          <input type="color" id="coverColor" value="#8a4d34">
+        </label>
+        <label>Accent
+          <input type="color" id="accentColor" value="#c99f66">
+        </label>
+        <label>Paper
+          <select id="paperStyle">
+            <option value="lined">Lined</option>
+            <option value="plain">Plain</option>
+            <option value="cream">Cream</option>
+            <option value="grid">Grid</option>
+          </select>
+        </label>
+        <label>Font
+          <select id="fontStyle">
+            <option value="Georgia">Classic</option>
+            <option value="Palatino Linotype">Bookish</option>
+            <option value="Trebuchet MS">Clean</option>
+            <option value="Courier New">Typewriter</option>
+          </select>
+        </label>
+      </div>
+      <div class="cover-preview" id="coverPreview">My Notebook</div>
+    </div>
+
+    <div class="section">
+      <h3>✦ Desk Rituals</h3>
+      <button class="btn soft" style="width:100%;margin-bottom:8px" id="cozyMode">Light a study evening</button>
+      <button class="btn soft" style="width:100%" id="clearAmbience">Quiet the room</button>
+      <p>“Study evening” turns on rain, leaves and a 30-minute focus session.</p>
+    </div>
+  </aside>
+</div>
+
+<div class="floating-leaves" id="leafLayer"></div>
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="notebookModal">
+  <div class="modal-card">
+    <h2>New Notebook 🍁</h2>
+    <div class="form-row">
+      <label>Name<br><input id="newNbName" value="Autumn Notes"></label>
+      <label>Cover<br><input id="newNbColor" type="color" value="#8a4d34"></label>
+    </div>
+    <div class="form-row" style="margin-top:12px">
+      <label>Paper<br>
+        <select id="newNbPaper">
+          <option value="lined">Lined</option>
+          <option value="plain">Plain</option>
+          <option value="cream">Cream</option>
+          <option value="grid">Grid</option>
+        </select>
+      </label>
+      <label>Font<br>
+        <select id="newNbFont">
+          <option value="Georgia">Classic</option>
+          <option value="Palatino Linotype">Bookish</option>
+          <option value="Trebuchet MS">Clean</option>
+          <option value="Courier New">Typewriter</option>
+        </select>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn soft" id="cancelNb">Cancel</button>
+      <button class="btn primary" id="createNb">Create</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY="autumnMasterNotebook_v1";
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+
+let state=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null") || {
+  notebooks:[{
+    id:Date.now(),
+    name:"Autumn Master Book",
+    cover:"#8a4d34",
+    accent:"#c99f66",
+    paper:"lined",
+    font:"Georgia",
+    pages:[{id:Date.now()+1,title:"Welcome",html:"<h2>Welcome to your autumn notebook 🍂</h2><p>Write here, highlight passages, annotate selections, add sticky notes, customise your book, and settle into a focus session.</p>",stickies:[]}]
+  }],
+  activeNotebook:null,
+  activePage:null
+};
+if(!state.activeNotebook) state.activeNotebook=state.notebooks[0].id;
+if(!state.activePage) state.activePage=state.notebooks[0].pages[0].id;
+
+let saveTimer;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>localStorage.setItem(STORAGE_KEY,JSON.stringify(state)),120);
+}
+function toast(msg){
+  const t=$("#toast");t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),1500);
+}
+function nb(){return state.notebooks.find(n=>n.id===state.activeNotebook)}
+function page(){return nb().pages.find(p=>p.id===state.activePage)}
+
+function htmlToText(raw){
+  const d=document.createElement("div");
+  d.innerHTML=raw||"";
+  return (d.innerText||d.textContent||"").replace(/\s+/g," ").trim();
+}
+function countWords(text){
+  const clean=(text||"").trim();
+  if(!clean)return 0;
+  return clean.split(/\s+/).filter(Boolean).length;
+}
+function updateWordCounts(){
+  const current = countWords($("#editor").innerText || "");
+  const total = nb().pages.reduce((sum,p)=>{
+    if(p.id===state.activePage) return sum + current;
+    return sum + countWords(htmlToText(p.html||""));
+  },0);
+  $("#pageWordCount").textContent=`${current} word${current===1?"":"s"}`;
+  $("#notebookWordCount").textContent=`${total} in notebook`;
+}
+
+function renderNotebooks(){
+  const list=$("#notebookList");list.innerHTML="";
+  state.notebooks.forEach(n=>{
+    const el=document.createElement("div");
+    el.className="notebook-card"+(n.id===state.activeNotebook?" active":"");
+    el.innerHTML=`<div class="cover-mini" style="background:${n.cover}"></div>
+      <div><div class="nb-title">${escapeHtml(n.name)}</div><div class="nb-meta">${n.pages.length} page${n.pages.length!==1?"s":""}</div></div>
+      <span class="dot"></span>`;
+    el.onclick=()=>{storeCurrent();state.activeNotebook=n.id;state.activePage=n.pages[0]?.id||null;renderAll();save()}
+    list.appendChild(el);
+  });
+}
+
+function renderPages(){
+  const n=nb();
+  if(!n.pages.length){
+    const p={id:Date.now(),title:"Page 1",html:"",stickies:[]};
+    n.pages.push(p);state.activePage=p.id;
+  }
+  if(!n.pages.some(p=>p.id===state.activePage)) state.activePage=n.pages[0].id;
+  const sel=$("#pageSelect");sel.innerHTML="";
+  n.pages.forEach((p,i)=>{
+    const o=document.createElement("option");o.value=p.id;o.textContent=p.title||`Page ${i+1}`;
+    if(p.id===state.activePage)o.selected=true;sel.appendChild(o)
+  });
+  loadCurrentPage();
+}
+function loadCurrentPage(){
+  const p=page();
+  $("#pageTitle").value=p.title||"Untitled Page";
+  $("#editor").innerHTML=p.html||"";
+  renderStickies();
+  updateWordCounts();
+}
+function storeCurrent(){
+  const p=page(); if(!p)return;
+  p.title=$("#pageTitle").value||"Untitled Page";
+  p.html=$("#editor").innerHTML;
+}
+function renderStickies(){
+  const layer=$("#stickyLayer");layer.innerHTML="";
+  (page().stickies||[]).forEach(s=>makeStickyEl(s));
+}
+function makeStickyEl(s){
+  const el=document.createElement("div");el.className="sticky";el.dataset.id=s.id;
+  el.style.left=s.x+"px";el.style.top=s.y+"px";el.style.background=s.color||"#f1cf79";
+  el.innerHTML=`<div class="drag"></div><button class="close">×</button><textarea>${escapeHtml(s.text||"")}</textarea>`;
+  $("#stickyLayer").appendChild(el);
+  const ta=el.querySelector("textarea");
+  ta.oninput=()=>{s.text=ta.value;save()}
+  el.querySelector(".close").onclick=()=>{page().stickies=page().stickies.filter(x=>x.id!==s.id);renderStickies();save()}
+  enableDrag(el,s);
+}
+function enableDrag(el,s){
+  const handle=el.querySelector(".drag");
+  let sx,sy,ox,oy,drag=false;
+  handle.onpointerdown=e=>{
+    drag=true;sx=e.clientX;sy=e.clientY;ox=parseFloat(el.style.left);oy=parseFloat(el.style.top);handle.setPointerCapture(e.pointerId)
+  };
+  handle.onpointermove=e=>{
+    if(!drag)return;
+    let x=ox+(e.clientX-sx), y=oy+(e.clientY-sy);
+    x=Math.max(0,Math.min($("#paper").clientWidth-el.offsetWidth,x));
+    y=Math.max(0,Math.min($("#paper").clientHeight-el.offsetHeight,y));
+    el.style.left=x+"px";el.style.top=y+"px";s.x=x;s.y=y;
+  };
+  handle.onpointerup=()=>{drag=false;save()}
+}
+function renderCustom(){
+  const n=nb();
+  $("#coverColor").value=n.cover;
+  $("#accentColor").value=n.accent||"#c99f66";
+  $("#paperStyle").value=n.paper||"lined";
+  $("#fontStyle").value=n.font||"Georgia";
+  $("#coverPreview").style.background=n.cover;
+  $("#coverPreview").style.color="#fff7ea";
+  $("#coverPreview").textContent=n.name;
+  applyPaperStyle();
+}
+function applyPaperStyle(){
+  const n=nb(), wrap=$("#paperWrap"), editor=$("#editor");
+  editor.style.fontFamily=n.font||"Georgia";
+  const base="linear-gradient(180deg,#efe2c6,#f8edd8)";
+  if(n.paper==="plain") wrap.style.background=base;
+  if(n.paper==="cream") wrap.style.background="linear-gradient(180deg,#e7d4ad,#f2e0bb)";
+  if(n.paper==="grid") wrap.style.background="linear-gradient(rgba(129,100,64,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(129,100,64,.07) 1px,transparent 1px),"+base,wrap.style.backgroundSize="28px 28px,28px 28px,auto";
+  if(n.paper==="lined") wrap.style.background="radial-gradient(circle at 20% 10%,rgba(255,255,255,.6),transparent 35%),repeating-linear-gradient(0deg,transparent 0 31px,rgba(129,100,64,.075) 31px 32px),"+base;
+}
+function renderAll(){renderNotebooks();renderPages();renderCustom();updateWordCounts()}
+
+$("#newNotebook").onclick=()=>$("#notebookModal").classList.add("show");
+$("#cancelNb").onclick=()=>$("#notebookModal").classList.remove("show");
+$("#createNb").onclick=()=>{
+  storeCurrent();
+  const id=Date.now();
+  const n={id,name:$("#newNbName").value||"New Notebook",cover:$("#newNbColor").value,accent:"#c99f66",
+    paper:$("#newNbPaper").value,font:$("#newNbFont").value,
+    pages:[{id:id+1,title:"Page 1",html:"",stickies:[]}]};
+  state.notebooks.push(n);state.activeNotebook=id;state.activePage=id+1;
+  $("#notebookModal").classList.remove("show");renderAll();save();toast("Notebook created 🍂")
+};
+
+$("#pageSelect").onchange=e=>{storeCurrent();state.activePage=Number(e.target.value);loadCurrentPage();updateWordCounts();save()}
+$("#newPageBtn").onclick=()=>{
+  storeCurrent();const p={id:Date.now(),title:`Page ${nb().pages.length+1}`,html:"",stickies:[]};
+  nb().pages.push(p);state.activePage=p.id;renderPages();updateWordCounts();save();toast("New page added")
+};
+$("#deletePageBtn").onclick=()=>{
+  if(nb().pages.length===1){toast("A notebook needs at least one page");return}
+  const i=nb().pages.findIndex(p=>p.id===state.activePage);
+  nb().pages.splice(i,1);state.activePage=nb().pages[Math.max(0,i-1)].id;renderPages();updateWordCounts();save()
+};
+$("#pageTitle").oninput=()=>{page().title=$("#pageTitle").value;renderNotebooks();save()}
+$("#editor").oninput=()=>{page().html=$("#editor").innerHTML;updateWordCounts();save()}
+
+$$("[data-cmd]").forEach(b=>b.onclick=()=>{document.execCommand(b.dataset.cmd,false,null);$("#editor").focus();save()});
+$("#clearFormatBtn").onclick=()=>{document.execCommand("removeFormat",false,null);save()}
+$("#highlightBtn").onclick=()=>{
+  const c=$("#highlightColor").value;
+  try{document.execCommand("hiliteColor",false,c)}catch{document.execCommand("backColor",false,c)}
+  $("#editor").focus();save()
+};
+$("#annotateBtn").onclick=()=>{
+  const sel=window.getSelection();
+  if(!sel.rangeCount||sel.isCollapsed){toast("Select text first");return}
+  const note=prompt("Annotation:");
+  if(!note)return;
+  const range=sel.getRangeAt(0);
+  const span=document.createElement("span");span.className="annotation";span.title=note;
+  try{range.surroundContents(span)}catch{toast("Try a smaller selection");return}
+  save();toast("Annotation added ✎")
+};
+$("#stickyBtn").onclick=()=>{
+  const s={id:Date.now(),x:60+Math.random()*180,y:80+Math.random()*140,color:["#f2d277","#e3b28a","#cbd59b","#d9b6c8"][Math.floor(Math.random()*4)],text:""};
+  page().stickies=page().stickies||[];page().stickies.push(s);makeStickyEl(s);save();toast("Sticky note added")
+};
+
+["coverColor","accentColor","paperStyle","fontStyle"].forEach(id=>{
+  $("#"+id).oninput=()=>{
+    const n=nb();
+    n.cover=$("#coverColor").value;n.accent=$("#accentColor").value;n.paper=$("#paperStyle").value;n.font=$("#fontStyle").value;
+    renderCustom();renderNotebooks();save()
+  }
+});
+
+$("#exportBtn").onclick=()=>{
+  storeCurrent();
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="autumn-master-notebook-backup.json";a.click();
+  URL.revokeObjectURL(a.href);toast("Backup exported")
+};
+$("#importBtn").onclick=()=>$("#importFile").click();
+$("#importFile").onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const data=JSON.parse(await f.text());
+    if(!data.notebooks)throw new Error();
+    state=data;renderAll();save();toast("Notebook library restored")
+  }catch{toast("That backup file could not be read")}
+};
+
+$("#openPanel").onclick=()=>$("#rightbar").classList.add("open");
+$("#closePanel").onclick=()=>$("#rightbar").classList.remove("open");
+
+
+// PDF reading desk
+let currentPdfUrl=null;
+function openPdfDesk(){
+  $("#workspace")?.classList?.add("split-reading");
+}
+$("#pdfToggleBtn").onclick=()=>{
+  document.querySelector(".workspace").classList.add("split-reading");
+  $("#pdfDesk").classList.add("open");
+};
+$("#closePdfBtn").onclick=()=>{
+  document.querySelector(".workspace").classList.remove("split-reading");
+  $("#pdfDesk").classList.remove("open");
+};
+$("#openPdfBtn").onclick=()=>$("#pdfFileInput").click();
+$("#pdfFileInput").onchange=e=>{
+  const file=e.target.files && e.target.files[0];
+  if(!file)return;
+  if(currentPdfUrl) URL.revokeObjectURL(currentPdfUrl);
+  currentPdfUrl=URL.createObjectURL(file);
+  $("#pdfName").textContent=file.name;
+  $("#pdfEmpty").style.display="none";
+  $("#pdfFrame").style.display="block";
+  $("#pdfFrame").src=currentPdfUrl;
+  document.querySelector(".workspace").classList.add("split-reading");
+  $("#pdfDesk").classList.add("open");
+  toast("PDF opened on the reading desk 📖");
+};
+
+// Timer
+let timerSeconds=25*60, timerBase=25*60, timerInterval=null;
+function drawTimer(){
+  const m=String(Math.floor(timerSeconds/60)).padStart(2,"0");
+  const s=String(timerSeconds%60).padStart(2,"0");
+  $("#timerDisplay").textContent=`${m}:${s}`;
+}
+function startTimer(){
+  if(timerInterval)return;
+  timerInterval=setInterval(()=>{
+    timerSeconds--;drawTimer();
+    if(timerSeconds<=0){clearInterval(timerInterval);timerInterval=null;timerSeconds=0;drawTimer();chime();toast("Focus session complete ☕")}
+  },1000)
+}
+$("#timerStart").onclick=startTimer;
+$("#timerPause").onclick=()=>{clearInterval(timerInterval);timerInterval=null}
+$("#timerReset").onclick=()=>{clearInterval(timerInterval);timerInterval=null;timerSeconds=timerBase;drawTimer()}
+$$(".quickTime").forEach(b=>b.onclick=()=>{timerBase=timerSeconds=Number(b.dataset.min)*60;drawTimer()});
+
+// WebAudio atmosphere
+let audioCtx=null, masterGain=null, activeSounds={};
+function initAudio(){
+  if(audioCtx)return;
+  audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  masterGain=audioCtx.createGain();masterGain.gain.value=Number($("#volume").value);masterGain.connect(audioCtx.destination)
+}
+function noiseNode(type){
+  initAudio();
+  const buffer=audioCtx.createBuffer(1,audioCtx.sampleRate*2,audioCtx.sampleRate);
+  const data=buffer.getChannelData(0);
+  for(let i=0;i<data.length;i++) data[i]=Math.random()*2-1;
+  const src=audioCtx.createBufferSource();src.buffer=buffer;src.loop=true;
+  const filter=audioCtx.createBiquadFilter();filter.type=type==="rain"?"highpass":"lowpass";filter.frequency.value=type==="rain"?1300:900;
+  const gain=audioCtx.createGain();gain.gain.value=type==="rain"?.15:.1;
+  src.connect(filter).connect(gain).connect(masterGain);src.start();
+  return {stop:()=>src.stop()};
+}
+function libraryNode(){
+  initAudio();
+  const osc=audioCtx.createOscillator();osc.type="sine";osc.frequency.value=55;
+  const g=audioCtx.createGain();g.gain.value=.012;osc.connect(g).connect(masterGain);osc.start();
+  return {stop:()=>osc.stop()};
+}
+function toggleSound(name,btn){
+  initAudio();
+  if(activeSounds[name]){activeSounds[name].stop();delete activeSounds[name];btn.classList.remove("active");return}
+  activeSounds[name]=name==="library"?libraryNode():noiseNode(name);
+  btn.classList.add("active")
+}
+$$(".atmos-btn[data-sound]").forEach(btn=>btn.onclick=()=>toggleSound(btn.dataset.sound,btn));
+$("#volume").oninput=e=>{if(masterGain)masterGain.gain.value=Number(e.target.value)}
+function stopAllSounds(){
+  Object.values(activeSounds).forEach(s=>{try{s.stop()}catch{}});
+  activeSounds={};$$(".atmos-btn[data-sound]").forEach(b=>b.classList.remove("active"))
+}
+function chime(){
+  initAudio();
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.frequency.value=660;o.type="sine";g.gain.setValueAtTime(.08,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.8);
+  o.connect(g).connect(masterGain);o.start();o.stop(audioCtx.currentTime+.8)
+}
+
+// Leaves
+let leavesOn=false, leafInterval=null;
+function spawnLeaf(){
+  const l=document.createElement("div");l.className="leaf";l.textContent=["🍂","🍁","🍃"][Math.floor(Math.random()*3)];
+  l.style.left=Math.random()*100+"vw";l.style.fontSize=(15+Math.random()*15)+"px";
+  l.style.animationDuration=(5+Math.random()*6)+"s";l.style.setProperty("--drift",(Math.random()*180-90)+"px");
+  $("#leafLayer").appendChild(l);setTimeout(()=>l.remove(),12000)
+}
+function toggleLeaves(force){
+  leavesOn=typeof force==="boolean"?force:!leavesOn;
+  $("#leafLayer").style.display=leavesOn?"block":"none";$("#leavesToggle").classList.toggle("active",leavesOn);
+  clearInterval(leafInterval);
+  if(leavesOn){for(let i=0;i<6;i++)setTimeout(spawnLeaf,i*300);leafInterval=setInterval(spawnLeaf,850)}
+}
+$("#leavesToggle").onclick=()=>toggleLeaves();
+$("#clearAmbience").onclick=()=>{stopAllSounds();toggleLeaves(false);toast("The room is quiet")}
+$("#cozyMode").onclick=()=>{
+  stopAllSounds();
+  toggleSound("rain",document.querySelector('[data-sound="rain"]'));
+  toggleLeaves(true);
+  timerBase=timerSeconds=30*60;drawTimer();startTimer();
+  toast("Study evening lit ☕🍂")
+};
+
+function escapeHtml(str){return String(str).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+
+renderAll();
+drawTimer();
+window.addEventListener("beforeunload",()=>{storeCurrent();localStorage.setItem(STORAGE_KEY,JSON.stringify(state))});
+</script>
+
+<script>
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+
+</body>
+</html>
